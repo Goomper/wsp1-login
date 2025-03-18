@@ -4,9 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ title }}</title>
+  <link rel="stylesheet" href="/css/reset.css">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/login.css">
 </head>
 <body>
-  {% block content %}{% endblock %}
+    <h1>{{ title }}</h1>
+    <form action="/login" method="post">
+        <input type="password" name="pw" id="pw">
+    </form>
 </body>
 </html>

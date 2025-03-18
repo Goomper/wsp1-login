@@ -3,7 +3,10 @@ body {
   font-size: 1.2rem;
 }
 
-main {
-  width: min(100% - 3rem, var(--container-max, 60ch));
-  margin-inline: auto;
+h1 {
+  font-size: 4rem;
+}
+
+p {
+  font-size: 1rem;
 }

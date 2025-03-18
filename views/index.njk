@@ -1,8 +1,27 @@
-{% extends "layout.njk" %}
-
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/index.css">
+</head>
+<body>
 <main>
-  <h1>{{ title }}</h1>
-  <p>{{ message }}</p>
+  <div class="container">
+    <div>
+      <form action="/login">
+        <input type="submit" value="Login"/>
+      </form> 
+    </div>
+    <div>
+      <form action="/signup">
+        <input type="submit" value="signup"/>
+      </form> 
+    </div>
+  </div>
 </main>
-{% endblock %}
+</body>
+</html>
