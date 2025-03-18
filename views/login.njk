@@ -10,8 +10,12 @@
 </head>
 <body>
     <h1>{{ title }}</h1>
-    <form action="/login" method="post">
-        <input type="password" name="pw" id="pw">
+    <form action="/login" method="get">
+        <label for="username">Enter Username</label>
+        <input type="text" name="username" id="username">
+        <label for="password">Enter Password</label>
+        <input type="password" name="" id="">
+        <input type="submit" value="submit">
     </form>
 </body>
 </html>

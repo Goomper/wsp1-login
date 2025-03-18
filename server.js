@@ -3,6 +3,8 @@ import express from 'express'
 import nunjucks from 'nunjucks'
 import logger from 'morgan'
 import bodyParser from 'body-parser'
+import pool from './db.js'
+import bcrypt from 'bcrypt'
 
 const app = express()
 const port = 3000
@@ -21,7 +23,22 @@ app.get("/", (req, res) => {
   })
 })
 
-app.get("/login", (req, res) => {
+app.get("/signup", async (req, res) => {
+  res.render('signup.njk', {
+    title: 'SignUpPage'
+  })
+})
+
+app.get("/login", async (req, res) => {
+  const username = req.params.username
+  const [users] = await pool.promise().query('SELECT * FROM users WHERE users.username = ?', [username])
+  const myPlaintextPassword = req.params.password
+  bcrypt.genSalt(10, function(err, salt) {
+    bcrypt.hash(myPlaintextPassword, salt, function(err, hash) {
+        // Store hash in your password DB.
+    })
+  })
+
   res.render('login.njk', {
     title: 'LoginPage'
   })
