@@ -5,6 +5,7 @@ import logger from 'morgan'
 import bodyParser from 'body-parser'
 import pool from './db.js'
 import bcrypt from 'bcrypt'
+import session from 'express-session'
 
 const app = express()
 const port = 3000
@@ -14,35 +15,72 @@ nunjucks.configure("views", {
   express: app,
 })
 
+app.use(session({
+  secret: "keyboard cat",
+  resave: false,
+  saveUninitialized: true,
+  cookie: { sameSite: true }
+}))
+
 app.use(logger("dev"))
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
 app.use(express.static("public"))
 
 app.get("/", (req, res) => {
-  res.render('index.njk', {
-    title: 'LoginTest',
-  })
+  if (req.session.views) {
+    req.session.views++
+  } else {
+    req.session.views = 1
+  }
+  res.render('index.njk',
+    { title: 'LoginTest', views: req.session.views }
+  )
 })
 
-app.get("/signup", async (req, res) => {
+app.get('/signup', async (req, res) => {
   res.render('signup.njk', {
     title: 'SignUpPage'
   })
 })
 
-app.get("/login", async (req, res) => {
-  const username = req.params.username
-  const [users] = await pool.promise().query('SELECT * FROM users WHERE users.username = ?', [username])
-  const myPlaintextPassword = req.params.password
-  bcrypt.genSalt(10, function(err, salt) {
-    bcrypt.hash(myPlaintextPassword, salt, function(err, hash) {
-        // Store hash in your password DB.
-    })
-  })
-
+app.get('/login', async (req, res) => {
+  
   res.render('login.njk', {
     title: 'LoginPage'
   })
 })
+
+app.post('/login', async (req, res) => {
+  const username = req.body.username
+  const password = req.body.password
+  const [user] = await pool.promise().query('SELECT * FROM users WHERE users.name = ?', [username])
+
+  let myPlaintextPassword = password
+  let loggedin = false
+  //if (user == null) {return res.render(404).send('Something Went Wrong')}
+  bcrypt.hash(myPlaintextPassword, 10, async function (err, hash) {
+    await pool.promise().query('UPDATE users SET users.password = ? WHERE users.name = ?', [hash, username])
+  })
+  bcrypt.compare(myPlaintextPassword, hash, function(err, result) {
+    if (result == true) {loggedin = true}
+    else if (result == false) {res.send('Something Was Wrong')}
+    else {res.send('404')}
+  })
+  console.log(loggedin)
+
+  res.redirect('/login')
+})
+
+
+
+/*app.post('/signup', async (req, res) => {
+  bcrypt.hash(myPlaintextPassword, 10, async function (err, hash) {
+    await pool.promise().query('UPDATE users SET users.password = ?', [hash])
+  })
+})*/
+
+
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
