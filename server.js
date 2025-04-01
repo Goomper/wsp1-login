@@ -51,28 +51,34 @@ app.get('/login', async (req, res) => {
   })
 })
 
+app.get('/secret', async (req, res) => {
+  res.render('secretsite.njk', {
+
+  })
+})
+
 app.post('/login', async (req, res) => {
   const username = req.body.username
   const password = req.body.password
-  const [user] = await pool.promise().query('SELECT * FROM users WHERE users.name = ?', [username])
-
-  let myPlaintextPassword = password
-  let loggedin = false
-  //if (user == null) {return res.render(404).send('Something Went Wrong')}
-  bcrypt.hash(myPlaintextPassword, 10, async function (err, hash) {
-    await pool.promise().query('UPDATE users SET users.password = ? WHERE users.name = ?', [hash, username])
+  const passwordhash = await pool.promise().query('SELECT users.password FROM users WHERE users.name = ?', [username]) 
+  
+  bcrypt.compare(password, passwordhash, function(err, result) { // FIXA DET HÄR
+    if (result == true) {res.redirect("/secret")}
+    else if (result == false) {res.send('Something Went Wrong')}
+    else (res.send('404'))
   })
-  bcrypt.compare(myPlaintextPassword, hash, function(err, result) {
-    if (result == true) {loggedin = true}
-    else if (result == false) {res.send('Something Was Wrong')}
-    else {res.send('404')}
-  })
-  console.log(loggedin)
-
-  res.redirect('/login')
 })
 
-
+app.post('/signup', async (req, res) => {
+  const username = req.body.username
+  const password = req.body.password
+  if (await pool.promise().query('SELECT * FROM users WHERE users.name = ?' [username]) != null) {res.send('Something Went Wrong')}
+  else if (await pool.promise().query('SELECT users.* WHERE users.name = ?' [username]) == null) {
+    bcrypt.hash(password, 10, async function (err, hash) {
+    await pool.promise().query('INSERT INTO users (name, password) VALUES (?, ?)', [username, hash])
+    })
+  }
+})
 
 /*app.post('/signup', async (req, res) => {
   bcrypt.hash(myPlaintextPassword, 10, async function (err, hash) {
